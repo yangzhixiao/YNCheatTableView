@@ -9,8 +9,6 @@
 #import "ViewController.h"
 #import "YNCheatTableView.h"
 #import "MenuTableViewCell.h"
-#import "UIView+RenderAsImage.h"
-#import "ScreenShotModel.h"
 
 @interface ViewController ()<UITableViewDataSource, UITableViewDelegate, YNCheatTableViewDelegate>
 @property (weak, nonatomic) IBOutlet YNCheatTableView *tableView;

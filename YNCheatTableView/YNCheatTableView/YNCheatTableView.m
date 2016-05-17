@@ -7,8 +7,6 @@
 //
 
 #import "YNCheatTableView.h"
-#import "ScreenShotModel.h"
-#import "UIView+RenderAsImage.h"
 
 #define YNLog(...) NSLog(__VA_ARGS__)
 //#define YNLog(...)
@@ -230,7 +228,7 @@
 }
 
 - (void)removeCoverViews {
-    ScreenShotModel *model = [self.screenshotDict objectForKey:@(self.currentIndex)];
+    YNScreenShotModel *model = [self.screenshotDict objectForKey:@(self.currentIndex)];
     if (model && model.lastOffsetY == self.currentCaptureOffsetY) {
         CGRect bounds = self.bounds;
         bounds.origin.y = model.lastPositionY;
@@ -260,12 +258,12 @@
     
     if (index == self.currentIndex) {
         
-        UIImage *image = [self.superview image];
+        UIImage *image = [self imageForView:self.superview];
         YNLog(@"image size: %@", NSStringFromCGSize(image.size));
         YNLog(@"screen size: %@", NSStringFromCGSize([UIScreen mainScreen].bounds.size));
         imageView = [[UIImageView alloc]initWithImage:image];
         
-        ScreenShotModel *model = [ScreenShotModel new];
+        YNScreenShotModel *model = [YNScreenShotModel new];
         model.image = image;
         model.lastOffsetY = offsetY;
         model.lastPositionY = self.bounds.origin.y;
@@ -274,7 +272,7 @@
     } else {
         
         if ([self.screenshotDict objectForKey:@(index)]) {
-            ScreenShotModel *model = [self.screenshotDict objectForKey:@(index)];
+            YNScreenShotModel *model = [self.screenshotDict objectForKey:@(index)];
             imageView = [[UIImageView alloc]initWithImage:model.image];
             YNLog(@"lastOffsetY: %@, posY: %@, offset: %@", @(model.lastOffsetY), @(offsetY), @(model.lastOffsetY-offsetY));
             if (model.lastOffsetY - offsetY > 0) {
@@ -336,11 +334,24 @@
     }
 }
 
+- (UIImage *)imageForView: (UIView*)view {
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0);
+    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage * img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
+
 - (void)setDebug:(BOOL)debug {
     _debug = debug;
     if (!debug) {
         [self removeCoverViews];
     }
 }
+
+@end
+
+
+@implementation YNScreenShotModel
 
 @end

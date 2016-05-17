@@ -16,8 +16,6 @@
 		C403B1741CE96497001F72CD /* YNCheatTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = C403B1731CE96497001F72CD /* YNCheatTableView.m */; };
 		C403B1781CE96D57001F72CD /* MenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C403B1761CE96D57001F72CD /* MenuTableViewCell.m */; };
 		C403B1791CE96D57001F72CD /* MenuTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C403B1771CE96D57001F72CD /* MenuTableViewCell.xib */; };
-		C403B17C1CE97262001F72CD /* UIView+RenderAsImage.m in Sources */ = {isa = PBXBuildFile; fileRef = C403B17B1CE97262001F72CD /* UIView+RenderAsImage.m */; };
-		C403B17F1CE974B9001F72CD /* ScreenShotModel.m in Sources */ = {isa = PBXBuildFile; fileRef = C403B17E1CE974B9001F72CD /* ScreenShotModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,10 +34,6 @@
 		C403B1751CE96D57001F72CD /* MenuTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuTableViewCell.h; sourceTree = "<group>"; };
 		C403B1761CE96D57001F72CD /* MenuTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuTableViewCell.m; sourceTree = "<group>"; };
 		C403B1771CE96D57001F72CD /* MenuTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuTableViewCell.xib; sourceTree = "<group>"; };
-		C403B17A1CE97262001F72CD /* UIView+RenderAsImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RenderAsImage.h"; sourceTree = "<group>"; };
-		C403B17B1CE97262001F72CD /* UIView+RenderAsImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RenderAsImage.m"; sourceTree = "<group>"; };
-		C403B17D1CE974B9001F72CD /* ScreenShotModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotModel.h; sourceTree = "<group>"; };
-		C403B17E1CE974B9001F72CD /* ScreenShotModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,10 +66,6 @@
 		C403B1591CE96439001F72CD /* YNCheatTableView */ = {
 			isa = PBXGroup;
 			children = (
-				C403B17D1CE974B9001F72CD /* ScreenShotModel.h */,
-				C403B17E1CE974B9001F72CD /* ScreenShotModel.m */,
-				C403B17A1CE97262001F72CD /* UIView+RenderAsImage.h */,
-				C403B17B1CE97262001F72CD /* UIView+RenderAsImage.m */,
 				C403B1711CE96497001F72CD /* YNCheatTableView */,
 				C403B15D1CE96439001F72CD /* AppDelegate.h */,
 				C403B15E1CE96439001F72CD /* AppDelegate.m */,
@@ -181,11 +171,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C403B17C1CE97262001F72CD /* UIView+RenderAsImage.m in Sources */,
 				C403B1621CE96439001F72CD /* ViewController.m in Sources */,
 				C403B15F1CE96439001F72CD /* AppDelegate.m in Sources */,
 				C403B1781CE96D57001F72CD /* MenuTableViewCell.m in Sources */,
-				C403B17F1CE974B9001F72CD /* ScreenShotModel.m in Sources */,
 				C403B15C1CE96439001F72CD /* main.m in Sources */,
 				C403B1741CE96497001F72CD /* YNCheatTableView.m in Sources */,
 			);
@@ -346,6 +334,7 @@
 				C403B1701CE96439001F72CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -31,3 +31,9 @@
 - (UIView*)loadingViewForTableViewAtIndex:(NSInteger)index;
 
 @end
+
+@interface YNScreenShotModel : NSObject
+@property (copy, nonatomic) UIImage *image;
+@property (assign, nonatomic) CGFloat lastOffsetY;
+@property (assign, nonatomic) CGFloat lastPositionY;
+@end
