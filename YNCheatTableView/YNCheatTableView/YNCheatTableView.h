@@ -18,6 +18,7 @@
 @property (assign, nonatomic) NSTimeInterval scrollAnimateDuration;
 
 - (void)setupCheatView;
+- (void)scrollToColumnAtIndex:(NSInteger)index;
 
 @end
 

@@ -137,6 +137,11 @@
     return nil;
 }
 
+- (IBAction)scrollTest:(id)sender {
+    [self.tableView scrollToColumnAtIndex:arc4random() % 3];
+//    [self.tableView scrollToColumnAtIndex:2];
+}
+
 - (IBAction)btnStop:(id)sender {
     self.tableView.debug = !self.tableView.debug;
 }

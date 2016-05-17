@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -58,11 +59,18 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="za6-Sg-IO8">
-                        <barButtonItem key="rightBarButtonItem" title="debug" id="U7i-kA-fSN">
-                            <connections>
-                                <action selector="btnStop:" destination="BYZ-38-t0r" id="maU-92-ETV"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="debug" id="U7i-kA-fSN">
+                                <connections>
+                                    <action selector="btnStop:" destination="BYZ-38-t0r" id="maU-92-ETV"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="random scroll" id="wCH-Dm-iIU">
+                                <connections>
+                                    <action selector="scrollTest:" destination="BYZ-38-t0r" id="Xdt-x2-0v2"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>

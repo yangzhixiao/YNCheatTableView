@@ -29,6 +29,8 @@
 
 @implementation YNCheatTableView
 
+#pragma mark - Public Methods
+
 - (void)setupCheatView
 {
     if (self.shouldScrollDistance == 0) {
@@ -56,6 +58,24 @@
     
 }
 
+- (void)scrollToColumnAtIndex:(NSInteger)index {
+    
+    if (self.currentIndex > index) { // Left
+        [self buildCoverViews];
+        [self animateRight];
+        YNLog(@"Left: %@", @(index));
+    }
+    
+    if (self.currentIndex < index) { // Right
+        [self buildCoverViews];
+        [self animateLeft];
+        YNLog(@"Right: %@", @(index));
+    }
+    
+}
+
+#pragma mark - Private Methods
+
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer == self.panGest) {
         CGPoint curPoint = [gestureRecognizer locationInView:self.superview];
@@ -64,7 +84,7 @@
     return [super gestureRecognizerShouldBegin:gestureRecognizer];
 }
 
-- (void)handle: (UIPanGestureRecognizer *)panGest {
+- (void)handle:(UIPanGestureRecognizer *)panGest {
     
     if (self.isEndScrollAnimating) {
         return;
@@ -77,38 +97,7 @@
     }
     
     if (panGest.state == UIGestureRecognizerStateBegan) {
-        UIView *parentView = self.superview;
-        
-        //left
-        CGRect frame = CGRectMake(-parentView.bounds.size.width,
-                           0,
-                           parentView.bounds.size.width,
-                           parentView.bounds.size.height);
-        CGFloat captureOffsetY = [self.cheatDelegate YNCheatTableViewShouldCaptureViewAtPositonY];
-        self.currentCaptureOffsetY = captureOffsetY;
-        UIImageView *leftView = [self CaptureViewAtIndex:self.currentIndex-1 offsetY:captureOffsetY];
-        leftView.frame = frame;
-        [parentView addSubview:leftView];
-        self.leftView = leftView;
-        
-        //center
-        UIImageView *centerView = [self CaptureViewAtIndex:self.currentIndex offsetY:captureOffsetY];
-        centerView.frame = CGRectMake(0,
-                                      0,
-                                      parentView.bounds.size.width,
-                                      parentView.bounds.size.height);
-        [parentView addSubview: centerView];
-        self.centerView = centerView;
-        
-        //right
-        frame = CGRectMake(parentView.bounds.size.width,
-                           0,
-                           parentView.bounds.size.width,
-                           parentView.bounds.size.height);
-        UIImageView *rightView = [self CaptureViewAtIndex:self.currentIndex+1 offsetY:captureOffsetY];
-        rightView.frame = frame;
-        [parentView addSubview:rightView];
-        self.rightView = rightView;
+        [self buildCoverViews];
     }
     
     if (panGest.state == UIGestureRecognizerStateChanged) {
@@ -143,6 +132,7 @@
         }
         
         if (self.centerView.frame.origin.x == 0) {
+            [self removeCoverViews];
             return;
         }
         self.isEndScrollAnimating = YES;
@@ -158,21 +148,7 @@
         });
         
         if (self.centerView.frame.origin.x <= -scrollOffsetX ) { //左
-            CGRect rightFrame = self.rightView.frame;
-            rightFrame.origin.x = 0;
-            
-            CGRect centerFrame = self.centerView.frame;
-            centerFrame.origin.x = - self.centerView.frame.size.width;
-            
-            [UIView animateWithDuration:scrollInterval animations:^{
-                ws.rightView.frame = rightFrame;
-                ws.centerView.frame = centerFrame;
-            } completion:^(BOOL finished) {
-                ws.currentIndex ++;
-                [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
-                [ws removeCoverViews];
-                ws.isEndScrollAnimating = NO;
-            }];
+            [self animateLeft];
             
         } else if(self.centerView.frame.origin.x < 0) {
             CGRect rightFrame = self.rightView.frame;
@@ -191,21 +167,7 @@
         
         
         if (self.centerView.frame.origin.x >= scrollOffsetX) {  //右
-            CGRect leftFrame = self.leftView.frame;
-            leftFrame.origin.x = 0;
-            
-            CGRect centerFrame = self.centerView.frame;
-            centerFrame.origin.x = self.centerView.frame.size.width;
-            
-            [UIView animateWithDuration:scrollInterval animations:^{
-                ws.leftView.frame = leftFrame;
-                ws.centerView.frame = centerFrame;
-            } completion:^(BOOL finished) {
-                ws.currentIndex --;
-                [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
-                [ws removeCoverViews];
-                ws.isEndScrollAnimating = NO;
-            }];
+            [self animateRight];
             
         } else if (self.centerView.frame.origin.x > 0 && self.centerView.frame.origin.x < scrollOffsetX) {
             CGRect leftFrame = self.leftView.frame;
@@ -313,6 +275,79 @@
     [coverView sendSubviewToBack:imageView];
     
     return coverView;
+}
+
+- (void)buildCoverViews {
+    UIView *parentView = self.superview;
+    
+    //left
+    CGRect frame = CGRectMake(-parentView.bounds.size.width,
+                              0,
+                              parentView.bounds.size.width,
+                              parentView.bounds.size.height);
+    CGFloat captureOffsetY = [self.cheatDelegate YNCheatTableViewShouldCaptureViewAtPositonY];
+    self.currentCaptureOffsetY = captureOffsetY;
+    UIImageView *leftView = [self CaptureViewAtIndex:self.currentIndex-1 offsetY:captureOffsetY];
+    leftView.frame = frame;
+    [parentView addSubview:leftView];
+    self.leftView = leftView;
+    
+    //center
+    UIImageView *centerView = [self CaptureViewAtIndex:self.currentIndex offsetY:captureOffsetY];
+    centerView.frame = CGRectMake(0,
+                                  0,
+                                  parentView.bounds.size.width,
+                                  parentView.bounds.size.height);
+    [parentView addSubview: centerView];
+    self.centerView = centerView;
+    
+    //right
+    frame = CGRectMake(parentView.bounds.size.width,
+                       0,
+                       parentView.bounds.size.width,
+                       parentView.bounds.size.height);
+    UIImageView *rightView = [self CaptureViewAtIndex:self.currentIndex+1 offsetY:captureOffsetY];
+    rightView.frame = frame;
+    [parentView addSubview:rightView];
+    self.rightView = rightView;
+}
+
+- (void)animateLeft {
+    CGRect rightFrame = self.rightView.frame;
+    rightFrame.origin.x = 0;
+    
+    CGRect centerFrame = self.centerView.frame;
+    centerFrame.origin.x = - self.centerView.frame.size.width;
+    
+    __weak YNCheatTableView *ws = self;
+    [UIView animateWithDuration:self.scrollAnimateDuration animations:^{
+        ws.rightView.frame = rightFrame;
+        ws.centerView.frame = centerFrame;
+    } completion:^(BOOL finished) {
+        ws.currentIndex ++;
+        [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        [ws removeCoverViews];
+        ws.isEndScrollAnimating = NO;
+    }];
+}
+
+- (void)animateRight {
+    CGRect leftFrame = self.leftView.frame;
+    leftFrame.origin.x = 0;
+    
+    CGRect centerFrame = self.centerView.frame;
+    centerFrame.origin.x = self.centerView.frame.size.width;
+    
+    __weak YNCheatTableView *ws = self;
+    [UIView animateWithDuration:self.scrollAnimateDuration animations:^{
+        ws.leftView.frame = leftFrame;
+        ws.centerView.frame = centerFrame;
+    } completion:^(BOOL finished) {
+        ws.currentIndex --;
+        [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        [ws removeCoverViews];
+        ws.isEndScrollAnimating = NO;
+    }];
 }
 
 - (CGFloat)calcOffsetHeight {
