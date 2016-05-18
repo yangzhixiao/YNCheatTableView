@@ -77,7 +77,9 @@
 #pragma mark - Private Methods
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
-    if (gestureRecognizer == self.panGest) {
+    if (gestureRecognizer == self.panGest
+        && self.cheatDelegate
+        && [self.cheatDelegate respondsToSelector:@selector(YNCheatTableView:ShouldScrollAtPoint:)]) {
         CGPoint curPoint = [gestureRecognizer locationInView:self.superview];
         return [self.cheatDelegate YNCheatTableView:self ShouldScrollAtPoint:curPoint];
     }
