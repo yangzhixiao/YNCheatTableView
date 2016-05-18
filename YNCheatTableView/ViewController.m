@@ -40,12 +40,12 @@
     return offsetY;
 }
 
-- (BOOL)YNCheatTableView:(YNCheatTableView *)tableView ShouldScrollAtPoint:(CGPoint)panTouchPoint {
+- (BOOL)YNCheatTableViewShouldScrollAtPoint:(CGPoint)panTouchPoint {
     CGPoint menuPosition = [self.tableView convertPoint:self.categoryMenuCell.frame.origin toView:self.view];
     return panTouchPoint.y > menuPosition.y + 50;
 }
 
-- (void)YNCheatTableView:(YNCheatTableView *)tableView didScrollTo:(NSInteger)index {
+- (void)YNCheatTableViewDidScrollTo:(NSInteger)index {
     self.columnIndex = index;
     [self.tableView reloadData];
 }

@@ -27,8 +27,8 @@
 - (CGFloat)YNCheatTableViewShouldCaptureViewAtPositonY;
 
 @optional
-- (BOOL)YNCheatTableView:(YNCheatTableView*)tableView ShouldScrollAtPoint:(CGPoint)panTouchPoint;
-- (void)YNCheatTableView:(YNCheatTableView*)tableView didScrollTo:(NSInteger)index;
+- (BOOL)YNCheatTableViewShouldScrollAtPoint:(CGPoint)panTouchPoint;
+- (void)YNCheatTableViewDidScrollTo:(NSInteger)index;
 - (UIView*)loadingViewForTableViewAtIndex:(NSInteger)index;
 
 @end

@@ -8,8 +8,8 @@
 
 #import "YNCheatTableView.h"
 
-#define YNLog(...) NSLog(__VA_ARGS__)
-//#define YNLog(...)
+//#define YNLog(...) NSLog(__VA_ARGS__)
+#define YNLog(...)
 
 #define kContent_Width [UIScreen mainScreen].bounds.size.width
 
@@ -62,13 +62,15 @@
     
     if (self.currentIndex > index) { // Left
         [self buildCoverViews];
-        [self animateRight];
+        self.currentIndex = index;
+        [self animateRight: YES];
         YNLog(@"Left: %@", @(index));
     }
     
     if (self.currentIndex < index) { // Right
         [self buildCoverViews];
-        [self animateLeft];
+        self.currentIndex = index;
+        [self animateLeft: YES];
         YNLog(@"Right: %@", @(index));
     }
     
@@ -79,9 +81,9 @@
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer == self.panGest
         && self.cheatDelegate
-        && [self.cheatDelegate respondsToSelector:@selector(YNCheatTableView:ShouldScrollAtPoint:)]) {
+        && [self.cheatDelegate respondsToSelector:@selector(YNCheatTableViewShouldScrollAtPoint:)]) {
         CGPoint curPoint = [gestureRecognizer locationInView:self.superview];
-        return [self.cheatDelegate YNCheatTableView:self ShouldScrollAtPoint:curPoint];
+        return [self.cheatDelegate YNCheatTableViewShouldScrollAtPoint:curPoint];
     }
     return [super gestureRecognizerShouldBegin:gestureRecognizer];
 }
@@ -93,8 +95,8 @@
     }
     
     CGPoint curPoint = [panGest locationInView:self.superview];
-    if ([self.cheatDelegate respondsToSelector:@selector(YNCheatTableView:ShouldScrollAtPoint:)]
-        && ![self.cheatDelegate YNCheatTableView:self ShouldScrollAtPoint:curPoint]) {
+    if ([self.cheatDelegate respondsToSelector:@selector(YNCheatTableViewShouldScrollAtPoint:)]
+        && ![self.cheatDelegate YNCheatTableViewShouldScrollAtPoint:curPoint]) {
         return;
     }
     
@@ -150,6 +152,7 @@
         });
         
         if (self.centerView.frame.origin.x <= -scrollOffsetX ) { //左
+            self.currentIndex ++;
             [self animateLeft];
             
         } else if(self.centerView.frame.origin.x < 0) {
@@ -169,6 +172,7 @@
         
         
         if (self.centerView.frame.origin.x >= scrollOffsetX) {  //右
+            self.currentIndex --;
             [self animateRight];
             
         } else if (self.centerView.frame.origin.x > 0 && self.centerView.frame.origin.x < scrollOffsetX) {
@@ -315,6 +319,10 @@
 }
 
 - (void)animateLeft {
+    [self animateLeft:NO];
+}
+
+- (void)animateLeft:(BOOL)justAnimate {
     CGRect rightFrame = self.rightView.frame;
     rightFrame.origin.x = 0;
     
@@ -326,17 +334,22 @@
         ws.rightView.frame = rightFrame;
         ws.centerView.frame = centerFrame;
     } completion:^(BOOL finished) {
-        ws.currentIndex ++;
-        if (ws.cheatDelegate
-            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableView:didScrollTo:)]) {
-            [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        if (!justAnimate
+            && ws.cheatDelegate
+            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableViewDidScrollTo:)]) {
+            [ws.cheatDelegate YNCheatTableViewDidScrollTo:ws.currentIndex];
         }
         [ws removeCoverViews];
         ws.isEndScrollAnimating = NO;
     }];
 }
 
+
 - (void)animateRight {
+    [self animateRight: NO];
+}
+
+- (void)animateRight:(BOOL)justAnimate {
     CGRect leftFrame = self.leftView.frame;
     leftFrame.origin.x = 0;
     
@@ -348,10 +361,10 @@
         ws.leftView.frame = leftFrame;
         ws.centerView.frame = centerFrame;
     } completion:^(BOOL finished) {
-        ws.currentIndex --;
-        if (ws.cheatDelegate
-            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableView:didScrollTo:)]) {
-            [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        if (!justAnimate
+            && ws.cheatDelegate
+            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableViewDidScrollTo:)]) {
+            [ws.cheatDelegate YNCheatTableViewDidScrollTo:ws.currentIndex];
         }
         [ws removeCoverViews];
         ws.isEndScrollAnimating = NO;
