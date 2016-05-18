@@ -327,7 +327,10 @@
         ws.centerView.frame = centerFrame;
     } completion:^(BOOL finished) {
         ws.currentIndex ++;
-        [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        if (ws.cheatDelegate
+            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableView:didScrollTo:)]) {
+            [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        }
         [ws removeCoverViews];
         ws.isEndScrollAnimating = NO;
     }];
@@ -346,7 +349,10 @@
         ws.centerView.frame = centerFrame;
     } completion:^(BOOL finished) {
         ws.currentIndex --;
-        [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        if (ws.cheatDelegate
+            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableView:didScrollTo:)]) {
+            [ws.cheatDelegate YNCheatTableView:ws didScrollTo:ws.currentIndex];
+        }
         [ws removeCoverViews];
         ws.isEndScrollAnimating = NO;
     }];
