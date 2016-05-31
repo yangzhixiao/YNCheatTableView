@@ -16,6 +16,7 @@
 @property (assign, nonatomic) BOOL debug;
 @property (assign, nonatomic) CGFloat shouldScrollDistance;
 @property (assign, nonatomic) NSTimeInterval scrollAnimateDuration;
+@property (strong, nonatomic) UIColor *coverBgColor;
 
 - (void)setupCheatView;
 - (void)scrollToColumnAtIndex:(NSInteger)index;

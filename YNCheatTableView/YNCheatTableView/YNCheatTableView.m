@@ -18,12 +18,13 @@
 @property (strong, nonatomic) UIImageView *leftView;
 @property (strong, nonatomic) UIImageView *rightView;
 @property (strong, nonatomic) UIImageView *centerView;
+@property (strong, nonatomic) UIView *coverBgView;
 @property (assign, nonatomic) CGPoint lastPanPoint;
 @property (assign, nonatomic) NSInteger currentIndex;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGest;
 @property (strong, nonatomic) NSMutableDictionary *screenshotDict;
 @property (assign, nonatomic) CGFloat currentCaptureOffsetY;
-@property (assign, nonatomic) BOOL isEndScrollAnimating;
+@property (assign, nonatomic) BOOL hasCoverViews;
 @end
 
 @implementation YNCheatTableView
@@ -40,9 +41,13 @@
         self.scrollAnimateDuration = 0.23f;
     }
     
+    if (!self.coverBgColor) {
+        self.coverBgColor = [UIColor whiteColor];
+    }
+    
     self.currentIndex = 0;
     self.screenshotDict = [NSMutableDictionary dictionary];
-    self.isEndScrollAnimating = NO;
+    self.hasCoverViews = NO;
     
     self.columnCount = [self.cheatDelegate columnCountForCheat];
     
@@ -88,29 +93,35 @@
 
 - (void)handle:(UIPanGestureRecognizer *)panGest {
     
-    if (self.isEndScrollAnimating) {
-        return;
-    }
-    
     CGPoint curPoint = [panGest locationInView:self.superview];
-    if ([self.cheatDelegate respondsToSelector:@selector(YNCheatTableViewShouldScrollAtPoint:)]
+    if (!self.hasCoverViews
+        && [self.cheatDelegate respondsToSelector:@selector(YNCheatTableViewShouldScrollAtPoint:)]
         && ![self.cheatDelegate YNCheatTableViewShouldScrollAtPoint:curPoint]) {
         return;
     }
     
     if (panGest.state == UIGestureRecognizerStateBegan) {
-        [self buildCoverViews];
+        
     }
     
     if (panGest.state == UIGestureRecognizerStateChanged) {
+        YNLog(@"UIGestureRecognizerStateChanged");
         CGFloat offsetX = curPoint.x - self.lastPanPoint.x;
         
-        if (offsetX > 0 && self.currentIndex == 0) { //右
-            [self removeCoverViews];
+        if (offsetX > 0
+            && self.currentIndex == 0
+            && self.centerView.frame.origin.x >= 0) { //右
+            //            [self removeCoverViews];
             return;
-        } else if (offsetX < 0 && self.currentIndex == self.columnCount - 1) { //左
-            [self removeCoverViews];
+        } else if (offsetX < 0
+                   && self.currentIndex == self.columnCount - 1
+                   && self.centerView.frame.origin.x <= 0) { //左
+            //            [self removeCoverViews];
             return;
+        }
+        
+        if (!self.hasCoverViews) {
+            [self buildCoverViews];
         }
         
         CGRect frame = self.centerView.frame;
@@ -128,7 +139,7 @@
     }
     
     if (panGest.state == UIGestureRecognizerStateEnded) {
-        
+        YNLog(@"UIGestureRecognizerStateEnded");
         if (self.debug) {
             return;
         }
@@ -137,7 +148,6 @@
             [self removeCoverViews];
             return;
         }
-        self.isEndScrollAnimating = YES;
         self.panGest.enabled = NO;
         
         CGFloat scrollOffsetX = self.shouldScrollDistance;
@@ -150,6 +160,14 @@
         });
         
         if (self.centerView.frame.origin.x <= -scrollOffsetX ) { //左
+            
+            if (self.currentIndex == self.columnCount - 1) {
+                [self resetPosition:YES];
+                YNLog(@"-should animate reset position");
+                return;
+            }
+            
+            YNLog(@"-should animate left");
             self.currentIndex ++;
             [self animateLeft];
             
@@ -164,12 +182,19 @@
                 ws.centerView.frame = centerFrame;
             } completion:^(BOOL finished) {
                 [ws removeCoverViews];
-                ws.isEndScrollAnimating = NO;
             }];
         }
         
         
         if (self.centerView.frame.origin.x >= scrollOffsetX) {  //右
+            
+            if (self.currentIndex == 0) {
+                [self resetPosition:YES];
+                YNLog(@"-should animate reset position");
+                return;
+            }
+            
+            YNLog(@"-should animate right");
             self.currentIndex --;
             [self animateRight];
             
@@ -184,7 +209,6 @@
                 ws.centerView.frame = centerFrame;
             } completion:^(BOOL finished) {
                 [ws removeCoverViews];
-                ws.isEndScrollAnimating = NO;
             }];
         }
         
@@ -201,13 +225,32 @@
         self.bounds = bounds;
     }
     
-    [self.leftView removeFromSuperview];
-    [self.rightView removeFromSuperview];
-    [self.centerView removeFromSuperview];
+    if (self.leftView) {
+        [self.leftView removeFromSuperview];
+        YNLog(@"-remove left view: %p", self.leftView);
+    }
+    
+    if (self.rightView) {
+        [self.rightView removeFromSuperview];
+        YNLog(@"-remove right view: %p", self.rightView);
+    }
+    
+    if (self.centerView) {
+        [self.centerView removeFromSuperview];
+        YNLog(@"-remove center view: %p", self.centerView);
+    }
+    
+    if (self.coverBgView) {
+        [self.coverBgView removeFromSuperview];
+        YNLog(@"-remove bgView view: %p", self.coverBgView);
+    }
     
     self.leftView = nil;
     self.rightView = nil;
     self.centerView = nil;
+    self.coverBgView = nil;
+    
+    self.hasCoverViews = NO;
 }
 
 - (UIImageView *)CaptureViewAtIndex:(NSInteger)index offsetY:(CGFloat)offsetY {
@@ -298,6 +341,7 @@
     leftView.frame = frame;
     [parentView addSubview:leftView];
     self.leftView = leftView;
+    YNLog(@"-build left: %p", leftView);
     
     //center
     UIImageView *centerView = [self CaptureViewAtIndex:self.currentIndex offsetY:captureOffsetY];
@@ -307,6 +351,7 @@
                                   parentView.bounds.size.height);
     [parentView addSubview: centerView];
     self.centerView = centerView;
+    YNLog(@"-build center: %p", centerView);
     
     //right
     frame = CGRectMake(parentView.bounds.size.width,
@@ -317,6 +362,21 @@
     rightView.frame = frame;
     [parentView addSubview:rightView];
     self.rightView = rightView;
+    YNLog(@"-build rightView: %p", rightView);
+    
+    // bg views
+    CGRect bgFrame = CGRectMake(0,
+                                captureOffsetY,
+                                parentView.bounds.size.width,
+                                parentView.bounds.size.height-captureOffsetY);
+    UIView *bgView = [[UIView alloc]init];
+    bgView.frame = bgFrame;
+    bgView.backgroundColor = self.coverBgColor;
+    [parentView insertSubview:bgView aboveSubview:self];
+    self.coverBgView = bgView;
+    YNLog(@"-build bgView: %p", bgView);
+    
+    self.hasCoverViews = YES;
 }
 
 - (void)animateLeft {
@@ -341,7 +401,6 @@
             [ws.cheatDelegate YNCheatTableViewDidScrollTo:ws.currentIndex];
         }
         [ws removeCoverViews];
-        ws.isEndScrollAnimating = NO;
     }];
 }
 
@@ -368,7 +427,37 @@
             [ws.cheatDelegate YNCheatTableViewDidScrollTo:ws.currentIndex];
         }
         [ws removeCoverViews];
-        ws.isEndScrollAnimating = NO;
+    }];
+}
+
+- (void)resetPosition {
+    [self resetPosition:NO];
+}
+
+- (void)resetPosition:(BOOL)justAnimate {
+    UIView *parentView = self.superview;
+    
+    CGRect leftFrame = self.leftView.frame;
+    leftFrame.origin.x = -parentView.bounds.size.width;
+    
+    CGRect rightFrame = self.rightView.frame;
+    rightFrame.origin.x = parentView.bounds.size.width;
+    
+    CGRect centerFrame = self.centerView.frame;
+    centerFrame.origin.x = 0;
+    
+    __weak YNCheatTableView *ws = self;
+    [UIView animateWithDuration:self.scrollAnimateDuration animations:^{
+        ws.leftView.frame = leftFrame;
+        ws.rightView.frame = rightFrame;
+        ws.centerView.frame = centerFrame;
+    } completion:^(BOOL finished) {
+        if (!justAnimate
+            && ws.cheatDelegate
+            && [ws.cheatDelegate respondsToSelector:@selector(YNCheatTableViewDidScrollTo:)]) {
+            [ws.cheatDelegate YNCheatTableViewDidScrollTo:ws.currentIndex];
+        }
+        [ws removeCoverViews];
     }];
 }
 
