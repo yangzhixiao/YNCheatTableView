@@ -22,7 +22,6 @@
 @property (assign, nonatomic) NSInteger currentIndex;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGest;
 @property (strong, nonatomic) NSMutableDictionary *screenshotDict;
-@property (assign, nonatomic) CGFloat offsetHeight;
 @property (assign, nonatomic) CGFloat currentCaptureOffsetY;
 @property (assign, nonatomic) BOOL isEndScrollAnimating;
 @end
@@ -42,7 +41,6 @@
     }
     
     self.currentIndex = 0;
-    self.offsetHeight = [self calcOffsetHeight];
     self.screenshotDict = [NSMutableDictionary dictionary];
     self.isEndScrollAnimating = NO;
     
@@ -273,7 +271,10 @@
         }
     }
     
-    imageView.frame = CGRectMake(0, offsetY, self.bounds.size.width, self.bounds.size.height-offsetY + self.offsetHeight);
+    imageView.frame = CGRectMake(0,
+                                 offsetY,
+                                 self.superview.bounds.size.width,
+                                 self.superview.bounds.size.height-offsetY);
     YNLog(@"index: %@, imageView: %@", @(index), NSStringFromCGRect(imageView.frame));
     imageView.contentMode = UIViewContentModeBottom;
     imageView.layer.masksToBounds = YES;
@@ -369,25 +370,6 @@
         [ws removeCoverViews];
         ws.isEndScrollAnimating = NO;
     }];
-}
-
-- (CGFloat)calcOffsetHeight {
-    UIViewController *vc = [self controllerForView:self];
-    if (vc && vc.navigationController && !vc.navigationController.navigationBarHidden) {
-        return 0;
-    }
-    return 20;
-}
-
-- (UIViewController *)controllerForView: (UIView *)view {
-    id nextResponder = [view nextResponder];
-    if ([nextResponder isKindOfClass:[UIViewController class]]) {
-        return nextResponder;
-    } else if ([nextResponder isKindOfClass:[UIView class]]) {
-        return [self controllerForView:nextResponder];
-    } else {
-        return nil;
-    }
 }
 
 - (UIImage *)imageForView: (UIView*)view {
